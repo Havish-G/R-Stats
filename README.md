@@ -85,21 +85,21 @@ Statistical-Analysis-Studio-v2/
 │   └── report_template.Rmd     # generic per-analysis report template
 ├── docs/
 │   └── architecture-diagram.svg
-└── tests/testthat/             # unit tests for stats_engine + db helpers
+└── tests/unittest/             # unit tests for stats_engine + db helpers
 ```
 
 ## 4. R package stack
 
 `shiny`, `bslib`, `ggplot2`, `dplyr`, `tidyr`, `DT`, `scales`, `DBI`,
 `RSQLite` (`RPostgres` for prod-like demo), `jsonlite`, `rmarkdown`,
-`testthat`.
+`unittest`.
 
 ## 5. Local run steps
 
 ```r
 install.packages(c(
   "shiny","bslib","ggplot2","dplyr","tidyr","DT","scales","DBI","RSQLite",
-  "jsonlite","rmarkdown","testthat"
+  "jsonlite","rmarkdown","unittest"
 ))
 ```
 
@@ -111,7 +111,7 @@ Rscript db/init_db.R --reset
 R -e "shiny::runApp('app.R')"
 
 # 3) (optional) Run tests
-R -e "testthat::test_dir('tests/testthat')"
+R -e "unittest::test_dir('tests/unittest')"
 ```
 
 ## 6. Docker (portable demo)
@@ -171,7 +171,7 @@ issues before running tests.
 ## 11. Reproducibility checklist
 
 - [ ] `db/init_db.R --reset` runs clean on a fresh clone
-- [ ] `testthat::test_dir("tests/testthat")` passes
+- [ ] `unittest::test_dir("tests/unittest")` passes
 - [ ] App launches with `shiny::runApp("app.R")` with no manual edits
 - [ ] Docker image builds and serves on port 3838
 

@@ -35,17 +35,28 @@ log_action <- function(con, user_id = 1L, action, entity = NA, entity_id = NA, d
 #' Register a dataset the first time it's loaded (built-in or uploaded),
 #' or reuse the existing row for a built-in dataset selected again.
 register_dataset <- function(con, source, name, df) {
+  # Defensive guard: never let a malformed `df` reach dbExecute() and
+  # crash the session with an opaque DBI parameter-binding error. NROW()/
+  # NCOL() (not nrow()/ncol()) are used deliberately - they always return
+  # a safe length-1 integer (0 for anything non-tabular), whereas
+  # nrow()/ncol() can return NULL for non-data.frame input, which breaks
+  # parameter binding.
+  if (!is.data.frame(df)) df <- as.data.frame(df)
+  if (NROW(df) == 0) {
+    stop("register_dataset() was given an empty or invalid data frame for '", name, "' - nothing to register.")
+  }
+
   if (source == "builtin") {
     existing <- DBI::dbGetQuery(con,
       "SELECT dataset_id FROM datasets WHERE source = 'builtin' AND name = ? ORDER BY loaded_at DESC LIMIT 1",
       params = list(name))
-    if (nrow(existing) > 0) return(existing$dataset_id[1])
+    if (NROW(existing) > 0) return(existing$dataset_id[1])
   }
   num_cols <- names(df)[sapply(df, is.numeric)]
   cat_cols <- names(df)[sapply(df, function(x) is.factor(x) || is.character(x))]
   DBI::dbExecute(con,
     "INSERT INTO datasets (source, name, n_rows, n_cols, numeric_cols, categorical_cols) VALUES (?, ?, ?, ?, ?, ?)",
-    params = list(source, name, nrow(df), ncol(df),
+    params = list(source, name, NROW(df), NCOL(df),
                    paste(num_cols, collapse = ","), paste(cat_cols, collapse = ","))
   )
   DBI::dbGetQuery(con, "SELECT last_insert_rowid() AS id")$id

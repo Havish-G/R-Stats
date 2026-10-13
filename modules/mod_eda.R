@@ -48,7 +48,7 @@ mod_eda_server <- function(id, con_getter, data_ctx) {
 
       if (input$plot_type == "corr") {
         nums <- df[, numeric_cols(df), drop = FALSE]
-        validate(need(ncol(nums) >= 2, "Need at least 2 numeric columns for a correlation matrix."))
+        shiny::validate(need(ncol(nums) >= 2, "Need at least 2 numeric columns for a correlation matrix."))
         pairs(nums, pch = 20, main = "Pairwise scatterplots")
         return(invisible())
       }

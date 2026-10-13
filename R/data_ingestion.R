@@ -18,7 +18,9 @@ builtin_datasets <- list(
 )
 
 is_categorical <- function(x) {
-  is.factor(x) || is.character(x) || (is.numeric(x) && length(unique(x)) <= 8)
+  is.factor(x) || is.character(x) ||
+    inherits(x, "Date") || inherits(x, "POSIXct") ||  # Excel date/datetime columns
+    (is.numeric(x) && length(unique(x)) <= 8)
 }
 
 numeric_cols <- function(df) names(df)[sapply(df, is.numeric)]
